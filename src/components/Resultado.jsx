@@ -1,10 +1,8 @@
-function Resultado({ resultado }) {
+export default function Resultado({ titulo, texto }) {
   return (
-    <section>
-      <h2>Resultado</h2>
-      <p>{resultado}</p>
-    </section>
+    <div className="resultado">
+      <p className="resultado-titulo">{titulo}</p>
+      <p className="resultado-texto">{texto}</p>
+    </div>
   )
 }
-
-export default Resultado
