@@ -1,4 +1,4 @@
-function Conversor() {
+function Conversor({ setResultado }) {
   return (
     <main>
       <label>Valor:</label>
