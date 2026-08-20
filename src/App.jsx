@@ -1,120 +1,93 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import Cabecalho from './components/Cabecalho'
+import Conversor from './components/Conversor'
+import Resultado from './components/Resultado'
 import './App.css'
 
+// Transforma um valor de uma unidade (KB, MB, GB, TB) em bytes
+function converterParaBytes(valor, unidade) {
+  const potencias = { KB: 1, MB: 2, GB: 3, TB: 4 }
+  return valor * Math.pow(1024, potencias[unidade])
+}
+
+// Converte um valor de uma unidade de origem para uma unidade de destino
+function calcularConversao(valor, unidadeOrigem, unidadeDestino) {
+  const potencias = { KB: 1, MB: 2, GB: 3, TB: 4 }
+  const bytes = converterParaBytes(valor, unidadeOrigem)
+  return bytes / Math.pow(1024, potencias[unidadeDestino])
+}
+
+// Calcula quantos arquivos (do tamanho informado) cabem no pendrive
+function calcularArquivosNoPendrive(valorArquivo, unidadeArquivo, tamanhoPendrive, unidadePendrive) {
+  const bytesArquivo = converterParaBytes(valorArquivo, unidadeArquivo)
+  const bytesPendrive = converterParaBytes(tamanhoPendrive, unidadePendrive)
+  if (bytesArquivo <= 0) return 0
+  return Math.floor(bytesPendrive / bytesArquivo)
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [valorArquivo, setValorArquivo] = useState('')
+  const [unidadeArquivo, setUnidadeArquivo] = useState('MB')
+  const [unidadeDestino, setUnidadeDestino] = useState('GB')
+  const [tamanhoPendrive, setTamanhoPendrive] = useState('')
+  const [unidadePendrive, setUnidadePendrive] = useState('GB')
+
+  const [erro, setErro] = useState(null)
+  const [textoConversao, setTextoConversao] = useState(null)
+  const [textoArquivos, setTextoArquivos] = useState(null)
+
+  function handleCalcular() {
+    const valor = parseFloat(valorArquivo)
+
+    if (isNaN(valor) || valor <= 0) {
+      setErro('Informe um tamanho de arquivo maior que zero.')
+      setTextoConversao(null)
+      setTextoArquivos(null)
+      return
+    }
+
+    setErro(null)
+
+    const conversao = calcularConversao(valor, unidadeArquivo, unidadeDestino)
+    setTextoConversao(
+      `${valor} ${unidadeArquivo} equivalem a ${conversao.toFixed(2)} ${unidadeDestino}`
+    )
+
+    const pendrive = parseFloat(tamanhoPendrive)
+    if (!isNaN(pendrive) && pendrive > 0) {
+      const arquivos = calcularArquivosNoPendrive(valor, unidadeArquivo, pendrive, unidadePendrive)
+      setTextoArquivos(`Cabem aproximadamente ${arquivos} arquivo(s) desse tamanho`)
+    } else {
+      setTextoArquivos(null)
+    }
+  }
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <Cabecalho />
+      <main className="conteudo">
+        <Conversor
+          valorArquivo={valorArquivo}
+          setValorArquivo={setValorArquivo}
+          unidadeArquivo={unidadeArquivo}
+          setUnidadeArquivo={setUnidadeArquivo}
+          unidadeDestino={unidadeDestino}
+          setUnidadeDestino={setUnidadeDestino}
+          tamanhoPendrive={tamanhoPendrive}
+          setTamanhoPendrive={setTamanhoPendrive}
+          unidadePendrive={unidadePendrive}
+          setUnidadePendrive={setUnidadePendrive}
+          onCalcular={handleCalcular}
+        />
 
-      <div className="ticks"></div>
+        {erro && <p className="erro">{erro}</p>}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {textoConversao && <Resultado titulo="Conversão" texto={textoConversao} />}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+        {textoArquivos && (
+          <Resultado titulo="Capacidade do pendrive" texto={textoArquivos} />
+        )}
+      </main>
     </>
   )
 }
