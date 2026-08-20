@@ -1,4 +1,4 @@
-function Resultado() {
+function Resultado({ resultado }) {
   return (
     <section>
       <h2>Resultado</h2>
